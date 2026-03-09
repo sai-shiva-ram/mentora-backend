@@ -2,24 +2,31 @@
 
 ## Overview
 
-This project implements a simplified backend for a mentorship platform where **Parents, Students, and Mentors** interact.
-Parents can create student accounts, mentors can create lessons, and students can be assigned to lessons through a booking system.
-The system also includes an **LLM-based text summarization endpoint**.
+This project implements a simplified backend for a mentorship platform where **Parents, Students, and Mentors interact**.
 
-This backend demonstrates **clean API design, modular architecture, database modeling, authentication, and external API integration**.
+The backend provides:
+
+* Authentication system
+* Parent–Student relationship
+* Lesson creation by mentors
+* Booking system for assigning students to lessons
+* Lesson sessions management
+* LLM-based text summarization endpoint
+
+The system is designed using **Node.js, Express, and MongoDB** with clean modular architecture.
 
 ---
 
 # Tech Stack
 
-* **Node.js**
-* **Express.js**
-* **MongoDB + Mongoose**
-* **JWT Authentication**
-* **bcrypt** for password hashing
-* **Axios** for external API calls
-* **express-rate-limit** for basic API protection
-* **Google Gemini API** for text summarization
+* Node.js
+* Express.js
+* MongoDB (Mongoose)
+* JWT Authentication
+* bcrypt (password hashing)
+* Axios (API requests)
+* express-rate-limit
+* Google Gemini API (LLM summarization)
 
 ---
 
@@ -71,7 +78,7 @@ mentora-backend
 Clone the repository
 
 ```
-git clone https://github.com/sai-shiva-ram/mentora-backend.git
+git clone https://github.com/YOUR_USERNAME/mentora-backend.git
 cd mentora-backend
 ```
 
@@ -85,7 +92,7 @@ npm install
 
 # Environment Variables
 
-Create a `.env` file in the project root.
+Create a `.env` file in the root directory.
 
 Example configuration:
 
@@ -93,25 +100,48 @@ Example configuration:
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/mentora
 JWT_SECRET=your_secret_key
-OPENAI_API_KEY=your_llm_api_key
+OPENAI_API_KEY=your_api_key
 ```
-
-For security reasons, `.env` is not included in the repository.
 
 ---
 
 # Running the Server
 
-Start the development server:
+Start the development server
 
 ```
 npm run dev
 ```
 
-Server will run on:
+Server should start with:
+
+```
+MongoDB Connected
+Server running on 5000
+```
+
+Base URL:
 
 ```
 http://localhost:5000
+```
+
+---
+
+# How to Test the API
+
+You can test the backend using:
+
+* Postman
+* Thunder Client (VSCode extension)
+* curl
+
+A Postman collection is included in the repository for easy testing.
+
+Import:
+
+```
+Mentora_API_Collection.json
 ```
 
 ---
@@ -124,21 +154,16 @@ http://localhost:5000
 POST /auth/signup
 ```
 
-Example Request:
+Example body:
 
 ```
 {
-  "name": "John",
-  "email": "john@example.com",
-  "password": "123456",
-  "role": "parent"
+"name": "John",
+"email": "john@test.com",
+"password": "123456",
+"role": "parent"
 }
 ```
-
-Allowed roles:
-
-* parent
-* mentor
 
 ---
 
@@ -148,42 +173,44 @@ Allowed roles:
 POST /auth/login
 ```
 
-Response includes a **JWT token** used for authenticated endpoints.
-
----
-
-# Students
-
-## Create Student (Parent Only)
+Response:
 
 ```
-POST /students
+JWT token
 ```
 
-Headers
+Use this token in headers:
 
 ```
 Authorization: Bearer TOKEN
 ```
 
-Request Body
+---
+
+# Students
+
+Create student (Parent only)
+
+```
+POST /students
+```
+
+Body:
 
 ```
 {
-  "name": "Alex",
-  "age": 14
+"name": "Alex",
+"age": 14
 }
 ```
 
 ---
 
-## Get Students
+Get students
 
 ```
 GET /students
 ```
-
-Returns all students belonging to the authenticated parent.
 
 ---
 
@@ -191,18 +218,16 @@ Returns all students belonging to the authenticated parent.
 
 Mentors can create lessons.
 
-## Create Lesson
-
 ```
 POST /lessons
 ```
 
-Example Request
+Example:
 
 ```
 {
-  "title": "Math Basics",
-  "description": "Introduction to Algebra"
+"title": "Math Basics",
+"description": "Introduction to Algebra"
 }
 ```
 
@@ -210,102 +235,82 @@ Example Request
 
 # Booking System
 
-Parents assign students to lessons.
+Assign a student to a lesson.
 
 ```
 POST /bookings
 ```
 
-Example Request
+Example:
 
 ```
 {
-  "studentId": "STUDENT_ID",
-  "lessonId": "LESSON_ID"
+"studentId": "STUDENT_ID",
+"lessonId": "LESSON_ID"
 }
 ```
-
-Validation includes:
-
-* Student must exist
-* Lesson must exist
-* Student must belong to the authenticated parent
 
 ---
 
 # Sessions
 
-Each lesson can contain multiple sessions.
-
-## Create Session
+Create session
 
 ```
 POST /sessions
 ```
 
-Example Request
+Example:
 
 ```
 {
-  "lessonId": "LESSON_ID",
-  "date": "2026-03-10",
-  "topic": "Linear Equations",
-  "summary": "Introduction to solving equations"
+"lessonId": "LESSON_ID",
+"date": "2026-03-10",
+"topic": "Linear Equations",
+"summary": "Introduction to solving equations"
 }
 ```
 
 ---
 
-## Get Lesson Sessions
+Get lesson sessions
 
 ```
 GET /sessions/lesson/:id
 ```
 
-Returns all sessions belonging to a lesson.
-
 ---
 
 # LLM Text Summarization
 
-## Endpoint
+Endpoint
 
 ```
 POST /llm/summarize
 ```
 
-Example Request
+Example request:
 
 ```
 {
-"text": "Artificial intelligence is transforming industries including healthcare, finance, education, and transportation..."
+"text": "Artificial intelligence is transforming industries including healthcare, finance, education and transportation."
 }
 ```
 
-Example Response
+Example response
 
 ```
 {
-  "summary": "...",
-  "model": "gemini-2.0-flash"
+"summary": "...",
+"model": "gemini"
 }
 ```
-
----
-
-# Validation Rules
-
-| Condition            | Response |
-| -------------------- | -------- |
-| Missing text         | 400      |
-| Text < 50 characters | 400      |
-| Text too large       | 413      |
 
 ---
 
 # Rate Limiting
 
-To prevent abuse, the LLM endpoint has a simple rate limiter:
+The LLM endpoint has a basic rate limiter.
 
 ```
 5 requests per minute
@@ -315,44 +320,27 @@ To prevent abuse, the LLM endpoint has a simple rate limiter:
 
 # Error Handling
 
-Standard HTTP error responses are used:
+The API returns standard HTTP responses:
 
-| Status | Meaning                    |
-| ------ | -------------------------- |
-| 400    | Invalid request            |
-| 401    | Unauthorized               |
-| 403    | Forbidden                  |
-| 404    | Resource not found         |
-| 502    | External LLM service error |
+| Code | Meaning              |
+| ---- | -------------------- |
+| 400  | Invalid input        |
+| 401  | Unauthorized         |
+| 403  | Forbidden            |
+| 404  | Not found            |
+| 502  | External API failure |
 
 ---
 
 # Assumptions
 
-* Students are always created by parents.
-* Only mentors can create lessons.
-* Parents assign students to lessons.
-* Sessions are associated with lessons.
-
----
-
-# Future Improvements
-
-* Role-based authorization middleware
-* Pagination for lessons and sessions
-* Booking conflict detection
-* Session attendance tracking
-* Notification system
+* Only parents create students
+* Only mentors create lessons
+* Parents assign students to lessons
+* Sessions belong to lessons
 
 ---
 
 # Author
 
-Backend assignment implementation for Mentora.
-
----
-
-# Notes
-
-Environment variables should not be committed to the repository.
-Use `.env.example` as a template for required configuration.
+Backend Assignment for Mentora.
